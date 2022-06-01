@@ -1,0 +1,6 @@
+framework module Pods_ExSlider {
+  umbrella header "Pods-ExSlider-umbrella.h"
+
+  export *
+  module * { export * }
+}
