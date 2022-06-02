@@ -11,7 +11,7 @@ class ViewController: UIViewController {
   private let slider: JKSlider = {
     let slider = JKSlider()
     slider.translatesAutoresizingMaskIntoConstraints = false
-    slider.backgroundColor = .blue
+    slider.backgroundColor = .systemCyan
     return slider
   }()
   
@@ -21,7 +21,7 @@ class ViewController: UIViewController {
     self.view.addSubview(self.slider)
     
     NSLayoutConstraint.activate([
-      self.slider.heightAnchor.constraint(equalToConstant: 50),
+      self.slider.heightAnchor.constraint(equalToConstant: 40),
       self.slider.widthAnchor.constraint(equalToConstant: 200),
       self.slider.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
       self.slider.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),

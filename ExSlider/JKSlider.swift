@@ -11,8 +11,7 @@ import SnapKit
 final class JKSlider: UIControl {
   // MARK: Constant
   private enum Constant {
-    static let barHeight = 8.0
-    static let thumbLength = barHeight * 5
+    static let barRatio = 1.0/9.0
   }
   
   // MARK: UI
@@ -48,8 +47,12 @@ final class JKSlider: UIControl {
   }()
   
   // MARK: Properties
-  var min = 0.0
-  var max = 10.0
+  var min = 0.0 {
+    didSet { self.lower = self.min }
+  }
+  var max = 10.0 {
+    didSet { self.upper = self.max }
+  }
   var lowerThumbColor = UIColor.white {
     didSet { self.lowerThumbView.backgroundColor = self.lowerThumbColor }
   }
@@ -79,41 +82,48 @@ final class JKSlider: UIControl {
   }
   override init(frame: CGRect) {
     super.init(frame: frame)
-    
+
     self.addSubview(self.trackView)
     self.trackView.addSubview(self.trackTintView)
     self.trackView.addSubview(self.lowerThumbView)
     self.trackView.addSubview(self.upperThumbView)
-
+    
+    self.lowerThumbView.backgroundColor = .orange
+    self.upperThumbView.backgroundColor = .red
+    
+    self.lowerThumbView.snp.makeConstraints {
+      $0.top.bottom.left.equalTo(self)
+      $0.width.equalTo(self.snp.height)
+    }
+    self.upperThumbView.snp.makeConstraints {
+      $0.top.bottom.right.equalTo(self)
+      $0.width.equalTo(self.snp.height)
+    }
     self.trackView.snp.makeConstraints {
-      $0.left.right.equalToSuperview()
-      $0.centerY.equalToSuperview()
-      $0.height.equalTo(Constant.barHeight)
+      $0.left.right.centerY.equalTo(self)
+      $0.height.equalTo(self).multipliedBy(Constant.barRatio)
     }
     self.trackTintView.snp.makeConstraints {
       $0.left.equalTo(self.lowerThumbView.snp.right)
       $0.right.equalTo(self.upperThumbView.snp.left)
-      $0.centerY.equalToSuperview()
-      $0.height.equalTo(Constant.barHeight)
-    }
-    self.lowerThumbView.snp.makeConstraints {
-      $0.left.equalToSuperview()
-      $0.top.greaterThanOrEqualToSuperview()
-      $0.bottom.lessThanOrEqualToSuperview()
-      $0.size.equalTo(Constant.thumbLength)
-    }
-    self.upperThumbView.snp.makeConstraints {
-      $0.right.equalToSuperview()
-      $0.top.greaterThanOrEqualToSuperview()
-      $0.bottom.lessThanOrEqualToSuperview()
-      $0.size.equalTo(Constant.thumbLength)
+      $0.top.bottom.equalTo(self.trackView)
     }
   }
   
+  override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
+    super.beginTracking(touch, with: event)
+    
+    let beginTouchPoint = touch.location(in: self)
+    
+    let isLowerThumbViewTouched = self.lowerThumbView.frame.contains(beginTouchPoint)
+    let isUpperThumbViewTouched = self.upperThumbView.frame.contains(beginTouchPoint)
+    
+    return isLowerThumbViewTouched || isUpperThumbViewTouched
+  }
   override func continueTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
     super.continueTracking(touch, with: event)
-    print(touch.location(in: self))
     
+    print(touch.location(in: self))
     return true
   }
 }
