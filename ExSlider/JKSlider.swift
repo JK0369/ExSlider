@@ -38,7 +38,7 @@ final class JKSlider: UIControl {
   }()
   private let trackTintView: UIView = {
     let view = UIView()
-    view.backgroundColor = .blue
+    view.backgroundColor = .green
     view.isUserInteractionEnabled = false
     return view
   }()
@@ -59,7 +59,7 @@ final class JKSlider: UIControl {
   var trackColor = UIColor.gray {
     didSet { self.trackView.backgroundColor = self.trackColor }
   }
-  var trackTintColor = UIColor.blue {
+  var trackTintColor = UIColor.green {
     didSet { self.trackTintView.backgroundColor = self.trackTintColor }
   }
   
@@ -92,16 +92,16 @@ final class JKSlider: UIControl {
     
     self.lowerThumbButton.snp.makeConstraints {
       $0.top.bottom.equalToSuperview()
-      $0.width.equalTo(self.snp.height)
       $0.right.lessThanOrEqualTo(self.upperThumbButton.snp.left)
       $0.left.greaterThanOrEqualToSuperview()
+      $0.width.equalTo(self.snp.height)
       self.leftConstraint = $0.left.equalTo(self.snp.left).priority(999).constraint // .constraint로 값 가져오기 테크닉
     }
     self.upperThumbButton.snp.makeConstraints {
       $0.top.bottom.equalToSuperview()
-      $0.width.equalTo(self.snp.height)
       $0.left.greaterThanOrEqualTo(self.lowerThumbButton.snp.right)
       $0.right.lessThanOrEqualToSuperview()
+      $0.width.equalTo(self.snp.height)
       self.rightConstraint = $0.left.equalTo(self.snp.left).priority(999).constraint
     }
     self.trackView.snp.makeConstraints {
@@ -170,16 +170,20 @@ final class JKSlider: UIControl {
   
   // MARK: Method
   private func updateLayout(_ value: Double, _ isLowerThumb: Bool) {
-    print(value)
-    
     DispatchQueue.main.async {
       let length = self.bounds.width - self.thumbViewLength
       let startValue = value - self.minValue
       let offset = length * startValue / (self.maxValue - self.minValue)
       
-      _ = isLowerThumb
-      ? self.leftConstraint?.update(offset: offset)
-      : self.rightConstraint?.update(offset: offset)
+      if isLowerThumb {
+        self.leftConstraint?.update(offset: offset)
+      } else {
+        self.rightConstraint?.update(offset: offset)
+      }
+      
+//      _ = isLowerThumb
+//      ? self.leftConstraint?.update(offset: offset)
+//      : self.rightConstraint?.update(offset: offset)
     }
   }
 }
