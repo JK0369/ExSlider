@@ -17,7 +17,7 @@ import SnapKit
 final class JKSlider: UIControl {
   // MARK: Constant
   private enum Constant {
-    static let barRatio = 1.0/9.0
+    static let barRatio = 1.0/10.0
   }
   
   // MARK: UI
@@ -111,14 +111,14 @@ final class JKSlider: UIControl {
       $0.width.equalTo(self.snp.height)
       $0.right.lessThanOrEqualTo(self.upperThumbView.snp.left)
       $0.left.greaterThanOrEqualToSuperview()
-      self.leftConstraint = $0.left.equalToSuperview().priority(999).constraint // .constraint로 값 가져오기 테크닉
+      self.leftConstraint = $0.left.equalTo(self.snp.left).priority(999).constraint // .constraint로 값 가져오기 테크닉
     }
     self.upperThumbView.snp.makeConstraints {
       $0.top.bottom.equalToSuperview()
       $0.width.equalTo(self.snp.height)
       $0.left.greaterThanOrEqualTo(self.lowerThumbView.snp.right)
       $0.right.lessThanOrEqualToSuperview()
-      self.rightConstraint = $0.right.equalTo(self.snp.left).priority(999).constraint
+      self.rightConstraint = $0.left.equalTo(self.snp.left).priority(999).constraint
     }
     self.trackView.snp.makeConstraints {
       $0.left.right.centerY.equalToSuperview()
