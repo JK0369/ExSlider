@@ -11,7 +11,6 @@ class ViewController: UIViewController {
   private let slider: JKSlider = {
     let slider = JKSlider()
     slider.translatesAutoresizingMaskIntoConstraints = false
-    slider.backgroundColor = .systemCyan
     return slider
   }()
   

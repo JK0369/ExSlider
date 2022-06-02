@@ -11,7 +11,6 @@ import SnapKit
 // 1. touch 영역 정보 - begin/continue/end tracking
 // 2. thumb뷰가 터치 되었는지 확인? 위 메소드에서 frame.contains로 확인
 // 3. frame.contains로 특정 뷰가 터치 되었는지 확인할것이므로, 각 뷰들을 isUserInteractionEnabled = false 처리 (컨테이너로 있는 UIView만 터치 받도록 처리)
-
 // 4. SnapKit에서 레이아웃 정의할때 .constraint로 Constraint 인스턴스를 가져와서 저장하고있고, continueTracking에서 실시간으로 Constraint의 inset을 변경
 
 final class JKSlider: UIControl {
@@ -21,27 +20,15 @@ final class JKSlider: UIControl {
   }
   
   // MARK: UI
-  private let lowerThumbView: RoundableView = {
-    let view = RoundableView()
-    view.backgroundColor = .white
-    view.layer.shadowOffset = CGSize(width: 0, height: 3)
-    view.layer.shadowColor = UIColor.black.cgColor
-    view.layer.shadowOpacity = 0.3
-    view.layer.borderWidth = 1.0
-    view.layer.borderColor = UIColor.gray.withAlphaComponent(0.1).cgColor
-    view.isUserInteractionEnabled = false
-    return view
+  private let lowerThumbButton: ThumbButton = {
+    let button = ThumbButton()
+    button.isUserInteractionEnabled = false
+    return button
   }()
-  private let upperThumbView: RoundableView = {
-    let view = RoundableView()
-    view.backgroundColor = .white
-    view.layer.shadowOffset = CGSize(width: 0, height: 3)
-    view.layer.shadowColor = UIColor.black.cgColor
-    view.layer.shadowOpacity = 0.3
-    view.layer.borderWidth = 1.0
-    view.layer.borderColor = UIColor.gray.withAlphaComponent(0.1).cgColor
-    view.isUserInteractionEnabled = false
-    return view
+  private let upperThumbButton: ThumbButton = {
+    let button = ThumbButton()
+    button.isUserInteractionEnabled = false
+    return button
   }()
   private let trackView: UIView = {
     let view = UIView()
@@ -64,10 +51,10 @@ final class JKSlider: UIControl {
     didSet { self.upper = self.maxValue }
   }
   var lowerThumbColor = UIColor.white {
-    didSet { self.lowerThumbView.backgroundColor = self.lowerThumbColor }
+    didSet { self.lowerThumbButton.backgroundColor = self.lowerThumbColor }
   }
   var upperThumbColor = UIColor.white {
-    didSet { self.upperThumbView.backgroundColor = self.upperThumbColor }
+    didSet { self.upperThumbButton.backgroundColor = self.upperThumbColor }
   }
   var trackColor = UIColor.gray {
     didSet { self.trackView.backgroundColor = self.trackColor }
@@ -79,7 +66,7 @@ final class JKSlider: UIControl {
   private var lower = 0.0 {
     didSet { self.updateLayout(self.lower, true) }
   }
-  private var upper = 10.0 {
+  private var upper = 0.0 {
     didSet { self.updateLayout(self.upper, false) }
   }
   private var previousTouchPoint = CGPoint.zero
@@ -100,23 +87,20 @@ final class JKSlider: UIControl {
 
     self.addSubview(self.trackView)
     self.addSubview(self.trackTintView)
-    self.addSubview(self.lowerThumbView)
-    self.addSubview(self.upperThumbView)
+    self.addSubview(self.lowerThumbButton)
+    self.addSubview(self.upperThumbButton)
     
-    self.lowerThumbView.backgroundColor = .orange
-    self.upperThumbView.backgroundColor = .red
-    
-    self.lowerThumbView.snp.makeConstraints {
+    self.lowerThumbButton.snp.makeConstraints {
       $0.top.bottom.equalToSuperview()
       $0.width.equalTo(self.snp.height)
-      $0.right.lessThanOrEqualTo(self.upperThumbView.snp.left)
+      $0.right.lessThanOrEqualTo(self.upperThumbButton.snp.left)
       $0.left.greaterThanOrEqualToSuperview()
       self.leftConstraint = $0.left.equalTo(self.snp.left).priority(999).constraint // .constraint로 값 가져오기 테크닉
     }
-    self.upperThumbView.snp.makeConstraints {
+    self.upperThumbButton.snp.makeConstraints {
       $0.top.bottom.equalToSuperview()
       $0.width.equalTo(self.snp.height)
-      $0.left.greaterThanOrEqualTo(self.lowerThumbView.snp.right)
+      $0.left.greaterThanOrEqualTo(self.lowerThumbButton.snp.right)
       $0.right.lessThanOrEqualToSuperview()
       self.rightConstraint = $0.left.equalTo(self.snp.left).priority(999).constraint
     }
@@ -125,8 +109,8 @@ final class JKSlider: UIControl {
       $0.height.equalTo(self).multipliedBy(Constant.barRatio)
     }
     self.trackTintView.snp.makeConstraints {
-      $0.left.equalTo(self.lowerThumbView.snp.right)
-      $0.right.equalTo(self.upperThumbView.snp.left)
+      $0.left.equalTo(self.lowerThumbButton.snp.right)
+      $0.right.equalTo(self.upperThumbButton.snp.left)
       $0.top.bottom.equalTo(self.trackView)
     }
   }
@@ -134,17 +118,21 @@ final class JKSlider: UIControl {
   // MARK: Touch
   override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
     super.point(inside: point, with: event)
-    return self.lowerThumbView.frame.contains(point) || self.upperThumbView.frame.contains(point)
+    return self.lowerThumbButton.frame.contains(point) || self.upperThumbButton.frame.contains(point)
   }
   
   override func beginTracking(_ touch: UITouch, with event: UIEvent?) -> Bool {
     super.beginTracking(touch, with: event)
     
     self.previousTouchPoint = touch.location(in: self)
-    self.isLowerThumbViewTouched = self.lowerThumbView.frame.contains(self.previousTouchPoint)
-    self.isUpperThumbViewTouched = self.upperThumbView.frame.contains(self.previousTouchPoint)
+    self.isLowerThumbViewTouched = self.lowerThumbButton.frame.contains(self.previousTouchPoint)
+    self.isUpperThumbViewTouched = self.upperThumbButton.frame.contains(self.previousTouchPoint)
     
-    // TODO: highlighted on
+    if self.isLowerThumbViewTouched {
+      self.lowerThumbButton.isSelected = true
+    } else {
+      self.upperThumbButton.isSelected = true
+    }
     
     return self.isLowerThumbViewTouched || self.isUpperThumbViewTouched
   }
@@ -175,7 +163,9 @@ final class JKSlider: UIControl {
   override func endTracking(_ touch: UITouch?, with event: UIEvent?) {
     super.endTracking(touch, with: event)
     self.sendActions(for: .valueChanged)
-    // TODO: highlighted off
+    
+    self.lowerThumbButton.isSelected = false
+    self.upperThumbButton.isSelected = false
   }
   
   // MARK: Method
@@ -194,10 +184,31 @@ final class JKSlider: UIControl {
   }
 }
 
-final class RoundableView: UIView {
+class RoundableButton: UIButton {
   override func layoutSubviews() {
     super.layoutSubviews()
     self.layer.cornerRadius = self.frame.height / 2
+  }
+}
+
+class ThumbButton: RoundableButton {
+  override var isSelected: Bool {
+    didSet {
+      self.backgroundColor = self.isSelected ? .lightGray : .white
+    }
+  }
+  
+  override init(frame: CGRect) {
+    super.init(frame: frame)
+    self.backgroundColor = .white
+    self.layer.shadowOffset = CGSize(width: 0, height: 3)
+    self.layer.shadowColor = UIColor.black.cgColor
+    self.layer.shadowOpacity = 0.3
+    self.layer.borderWidth = 1.0
+    self.layer.borderColor = UIColor.gray.withAlphaComponent(0.1).cgColor
+  }
+  required init?(coder: NSCoder) {
+    fatalError()
   }
 }
 
