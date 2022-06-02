@@ -50,6 +50,12 @@ final class JKSlider: UIControl {
   var maxValue = 10.0 {
     didSet { self.upper = self.maxValue }
   }
+  var lower = 0.0 {
+    didSet { self.updateLayout(self.lower, true) }
+  }
+  var upper = 0.0 {
+    didSet { self.updateLayout(self.upper, false) }
+  }
   var lowerThumbColor = UIColor.white {
     didSet { self.lowerThumbButton.backgroundColor = self.lowerThumbColor }
   }
@@ -63,12 +69,6 @@ final class JKSlider: UIControl {
     didSet { self.trackTintView.backgroundColor = self.trackTintColor }
   }
   
-  private var lower = 0.0 {
-    didSet { self.updateLayout(self.lower, true) }
-  }
-  private var upper = 0.0 {
-    didSet { self.updateLayout(self.upper, false) }
-  }
   private var previousTouchPoint = CGPoint.zero
   private var isLowerThumbViewTouched = false
   private var isUpperThumbViewTouched = false
@@ -180,10 +180,6 @@ final class JKSlider: UIControl {
       } else {
         self.rightConstraint?.update(offset: offset)
       }
-      
-//      _ = isLowerThumb
-//      ? self.leftConstraint?.update(offset: offset)
-//      : self.rightConstraint?.update(offset: offset)
     }
   }
 }
