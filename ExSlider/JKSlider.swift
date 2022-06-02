@@ -118,7 +118,7 @@ final class JKSlider: UIControl {
       $0.width.equalTo(self.snp.height)
       $0.left.greaterThanOrEqualTo(self.lowerThumbView.snp.right)
       $0.right.lessThanOrEqualToSuperview()
-      self.rightConstraint = $0.right.equalToSuperview().priority(999).constraint
+      self.rightConstraint = $0.right.equalTo(self.snp.left).priority(999).constraint
     }
     self.trackView.snp.makeConstraints {
       $0.left.right.centerY.equalToSuperview()
@@ -166,7 +166,7 @@ final class JKSlider: UIControl {
       self.lower = (self.lower + scaledDrag)
         .clamped(to: (self.minValue...self.upper))
     } else {
-      self.upper = (self.upper + -scaledDrag)
+      self.upper = (self.upper + scaledDrag)
         .clamped(to: (self.lower...self.maxValue))
     }
     return true
@@ -181,15 +181,15 @@ final class JKSlider: UIControl {
   // MARK: Method
   private func updateLayout(_ value: Double, _ isLowerThumb: Bool) {
     print(value)
+    
     DispatchQueue.main.async {
       let length = self.bounds.width - self.thumbViewLength
       let startValue = value - self.minValue
-      let diff = self.maxValue - self.minValue
-      let inset = length * startValue / diff
+      let offset = length * startValue / (self.maxValue - self.minValue)
       
       _ = isLowerThumb
-      ? self.leftConstraint?.update(inset: inset)
-      : self.rightConstraint?.update(inset: inset)
+      ? self.leftConstraint?.update(offset: offset)
+      : self.rightConstraint?.update(offset: offset)
     }
   }
 }
