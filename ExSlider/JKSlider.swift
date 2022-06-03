@@ -171,9 +171,9 @@ final class JKSlider: UIControl {
   // MARK: Method
   private func updateLayout(_ value: Double, _ isLowerThumb: Bool) {
     DispatchQueue.main.async {
-      let length = self.bounds.width - self.thumbViewLength
       let startValue = value - self.minValue
-      let offset = length * startValue / (self.maxValue - self.minValue)
+      let length = self.bounds.width - self.thumbViewLength
+      let offset = startValue * length / (self.maxValue - self.minValue)
       
       if isLowerThumb {
         self.leftConstraint?.update(offset: offset)
