@@ -147,8 +147,8 @@ final class JKSlider: UIControl {
     }
     
     let drag = Double(touchPoint.x - self.previousTouchPoint.x)
-    let scale = (self.maxValue - self.minValue) * drag
-    let scaledDrag = scale / Double(self.bounds.width - self.thumbViewLength) // thumbView가 움직일수 있는 영역으로 나누어주기
+    let scale = self.maxValue - self.minValue
+    let scaledDrag = scale * drag / Double(self.bounds.width - self.thumbViewLength)
     
     if self.isLowerThumbViewTouched {
       self.lower = (self.lower + scaledDrag)
